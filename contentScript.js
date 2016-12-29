@@ -113,7 +113,8 @@ function ReceiveMessages(){
 
 
 function sendMessageToBackground(){
-	chrome.runtime.sendMessage({domHtml: document.documentElement.innerHTML, "from":"content"});
+	var title = document.title;
+	chrome.runtime.sendMessage({"domHtml": document.documentElement.outerHTML, "from":"content", "title":title});
 }
 
 

@@ -1,3 +1,35 @@
+//method can be GET or POST
+function makeCorsPostRequest(urlString, ajaxArguments, onSuccessCallbackFunction, successArguments, method, contentType, postData) {
+
+  var completeUrl = concateUrlAndParams(urlString, ajaxArguments);
+
+  var xhr = createCORSRequest(method, completeUrl);
+  if (!xhr) {
+      var ajaxResponse = new AjaxResponse(false, 'CORS not supported', null);
+      return ajaxResponse;
+  }
+
+  // Response handlers.
+  xhr.onload = function() {
+      var text = xhr.responseText;
+      var ajaxResponse = new AjaxResponse(true, 'CORS succeeded', text);
+      return onSuccessCallbackFunction(ajaxResponse, successArguments);
+  };
+
+  xhr.onerror = function () {
+      var ajaxResponse = new AjaxResponse(false, 'Woops, there was an error making the request.', null);
+      return ajaxResponse;
+  };
+
+  if(contentType)
+  xhr.setRequestHeader("Content-Type", contentType);
+  
+  if(postData)
+    xhr.send(postData);
+	else
+  xhr.send();
+}
+
 function makeCorsGetRequest(urlString, ajaxArguments, onSuccessCallbackFunction, successArguments) {
 
   var completeUrl = concateUrlAndParams(urlString, ajaxArguments);
@@ -23,6 +55,7 @@ function makeCorsGetRequest(urlString, ajaxArguments, onSuccessCallbackFunction,
   xhr.send();
 }
 
+//it is GET
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
   if ("withCredentials" in xhr) {

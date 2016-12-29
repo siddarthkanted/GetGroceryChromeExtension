@@ -34,7 +34,7 @@
     ],
 	
 	"background": {
-    "scripts": ["jquery-1.10.2.js","background.js","ajaxResponse.js","ajaxCorsRequest.js","defaultOffers.js"],
+    "scripts": ["jquery-1.10.2.js","background.js","ajaxResponse.js","ajaxCorsRequest.js","defaultOffers.js", "parsingRules.js"],
     "persistent": false
   },
   
