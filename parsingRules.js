@@ -13,7 +13,7 @@ var parsingRules = [{
 			"objectKey": "innerText"
 		},
 		productMrpPrice: {
-			"htmlId": "#dpv2_redesign_strikeprice_and_savings_row,strike[id='priceblock_ourprice']",
+			"htmlId": "#dpv2_redesign_strikeprice_and_savings_row,strike[id='priceblock_ourprice'],span[class='a-text-strike']",
 			"objectKey": "innerText"
 		},
 		productOfferPrice: {
@@ -25,7 +25,7 @@ var parsingRules = [{
 			"objectKey": "innerText"
 		},
 		productImage: {
-			"htmlId": "#landingImage",
+			"htmlId": "img[id='landingImage']",
 			"objectKey": "src"
 		},
 		productDbId: {
@@ -37,6 +37,46 @@ var parsingRules = [{
 			"objectKey": "value"
 		},
 		PartnerName: "Amazon"
+	},
+	
+	{
+		urlRegexContains: ".*snapdeal.*/product/.*/[0-9]*.*",
+		titleContainsArray: ["Snapdeal"],
+		productName: {
+			"htmlId": "h1[class='pdp-e-i-head']",
+			"objectKey": "innerText"
+		},
+		productBrandName: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		productMrpPrice: {
+			"htmlId": "div[class='pdpCutPrice'],span[class='payBlkBig']",
+			"objectKey": "innerText"
+		},
+		productOfferPrice: {
+			"htmlId": "span[itemprop='price']",
+			"objectKey": "innerText"
+		},
+		productDealPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		productImage: {
+			"htmlId": "img[itemprop='image']",
+			"objectKey": "src"
+		},
+		productDbId: {
+			"htmlId": "#productId",
+			"objectKey": "value",
+			"urlParameter": ""
+		},
+		productUrlId: {
+			"htmlId": "#productId",
+			"objectKey": "value",
+			"urlParameter": ""
+		},
+		PartnerName: "Snapdeal"
 	}
 ];
 
@@ -51,23 +91,55 @@ function matchOtherRules(domHtml, otherRules) {
 	return true;
 }
 
+function getBrandName(domHtml, elementObject, productName){
+	var productBrandName = getElementByXpath(domHtml, elementObject);
+	if(productBrandName) return productBrandName;
+	for (var i = 0; i < importantBrandNames.length; i++) {
+		var brandName = importantBrandNames[i];
+		brandName = brandName.toLowerCase();
+		brandName = "\\b"+brandName+"\\b";
+		var brandNameRegex = new RegExp(brandName);
+		if (brandNameRegex.test(productName.toLowerCase())) {
+			return importantBrandNames[i];
+		} 
+	}
+	return null;
+}
+
+var getQueryString = function ( field, url ) {
+    var href = url ? url : window.location.href;
+    var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
+    var string = reg.exec(href);
+    return string ? string[1] : null;
+};
+
+function getProductId(domHtml, elementObject, url){
+if(elementObject.htmlId){
+return getElementByXpath(domHtml, elementObject);
+}
+if(elementObject.urlParameter){
+return getQueryString(elementObject.urlParameter, url);
+}
+return null;
+}
+
 function parseSite(url, title, domHtml) {
 	for (var i = 0; i < parsingRules.length; i++) {
 		if (urlMatch(url, parsingRules[i].urlRegexContains) && titleMatch(title, parsingRules[i].titleContainsArray) && matchOtherRules(domHtml, parsingRules[i].otherRules)) {
 			
-			var productBrandName = getElementByXpath(domHtml, parsingRules[i].productBrandName);
-			if(importantBrandNames.indexOf(productBrandName.toLowerCase()) === -1)
-				return null;
-						
 			var productName = getElementByXpath(domHtml, parsingRules[i].productName);
 			if (productName === null)
 				return null;
-
-			var productDbId = getElementByXpath(domHtml, parsingRules[i].productDbId);
+			
+			var productBrandName = getBrandName(domHtml, parsingRules[i].productBrandName, productName);
+			if(productBrandName=== null || importantBrandNames.indexOf(productBrandName.toLowerCase()) === -1)
+				return null;
+						
+			var productDbId = getProductId(domHtml, parsingRules[i].productDbId, url);
 			if (productDbId === null)
 				return null;
 
-			var productUrlId = getElementByXpath(domHtml, parsingRules[i].productUrlId);
+			var productUrlId = getProductId(domHtml, parsingRules[i].productUrlId, url);
 			if (productUrlId === null)
 				return null;
 
@@ -123,6 +195,7 @@ function getValueByXpath(domHtml, htmlId, htmlAttribute) {
 		if (elementValue) {
 			elementValue = elementValue.trim();
 			elementValue = elementValue.replace(/(\r\n|\n|\r)/gm, "");
+			elementValue = elementValue.replace(/(Rs|Rs.|₹)/gm, "");
 			return elementValue;
 		}
 	}
