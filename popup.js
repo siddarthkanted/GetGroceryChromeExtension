@@ -17,7 +17,9 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     console.log(tab.url, tab.title);
     chrome.tabs.getSelected(null, function(tab) {
         chrome.tabs.sendMessage(tab.id, {from: "popup"}, function(msg) {
-			displayItemArrayFromAjaxResponse(msg.ajaxResponse);
+			if(msg && msg.ajaxResponse)	{
+						displayItemArrayFromAjaxResponse(msg.ajaxResponse);
+			}
         });
     });
 });
@@ -26,5 +28,13 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 document.addEventListener('DOMContentLoaded', function() {
   defaultOffersDisplay();
   sendMessageToContent();
+  $( "#tabs" ).tabs();
+  appVersionNumber();
 });
+
+function appVersionNumber(){
+	var manifestData = chrome.runtime.getManifest();
+	document.getElementById('appVersionNumber').innerHTML = "Version : " + manifestData.version;
+}
+
 

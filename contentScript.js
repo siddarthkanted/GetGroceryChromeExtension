@@ -98,19 +98,49 @@ function updateListItems(msg){
         return displayItemArray(jsonData.UrlsOfOfferSite);
 }
 
+function createStripe(){
+
+	var imgURL = chrome.extension.getURL("icon.png")
+	var stripeHtml = '<div id="detailOutWrap"><div id="detailInWrap"><img id="details_logo" src='+imgURL+'><div id="details">Hurray !  Similar products are found in other sites too:)<div class="drop_down" id="compare_now" onmouseover="cancel=true;">COMPARE PRICES<div class="drop_down_symbol"></div><div id="dd_menu"><ul id="offers_partner_items_ul" style="list-style: none; padding: 0px; margin: 0px;height: 400px;overflow-y: scroll;"></ul></div></div><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://chrome.google.com/webstore/detail/nmelombbjhlgkmmmppbmkomnbpcdcfko"> <span class="share-service-icon share-service-icon-facebook yt-sprite"></span></a> <a target="_blank" href="https://twitter.com/intent/tweet?url=https://chrome.google.com/webstore/detail/nmelombbjhlgkmmmppbmkomnbpcdcfko&text=A%20wonderful%20chrome%20extension%20to%20help%20you%20to%20do%20on-line%20purchase%20in%20India%20at%20best%20price.%20I%20have%20tried%20it%20out%20and%20it%20indeed%20saved%20my%20money.&original_referer="> <span class="share-service-icon share-service-icon-twitter yt-sprite"></span></a> <a target="_blank" href="https://mail.google.com/mail/u/0/?view=cm&fs=1&su=Hey have a look at this extension !!&body=A wonderful chrome extension to help you to do on-line purchase in India at best price. - https://chrome.google.com/webstore/detail/nmelombbjhlgkmmmppbmkomnbpcdcfko&tf=1"> <span class="share-service-icon share-service-icon-mail yt-sprite"></a> <a target="_blank" href="https://plus.google.com/u/0/share?url=https://chrome.google.com/webstore/detail/nmelombbjhlgkmmmppbmkomnbpcdcfko"><span class="share-service-icon share-service-icon-googleplus yt-sprite"></span></a> <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://chrome.google.com/webstore/detail/nmelombbjhlgkmmmppbmkomnbpcdcfko&title=A%20wonderful%20chrome%20extension%20to%20help%20you%20to%20do%20on-line%20purchase%20in%20India%20at%20best%20price.%20I%20have%20tried%20it%20out%20and%20it%20indeed%20saved%20my%20money.%0Ahttps://chrome.google.com/webstore/detail/nmelombbjhlgkmmmppbmkomnbpcdcfko"><span class="share-service-icon share-service-icon-linkedin yt-sprite"></span></a><a href="javascript:void();" id="detailClose" style="margin-left:4px">x</a>'
+	
+	var stripeDiv = document.createElement('div');
+	stripeDiv.className  += "topbar";
+	stripeDiv.id= "topbarDiv";
+	stripeDiv.innerHTML = stripeHtml;
+	
+	var bodyTag = document.getElementsByTagName('body')[0];
+	bodyTag.parentNode.insertBefore(stripeDiv, bodyTag);
+	hideStripeBar();
+};
+
+function hideStripeBar(){
+$('#detailClose').on('click',function(){
+document.getElementById('topbarDiv').style.display = "none";
+});
+};
+
 function ReceiveMessages(){
     chrome.runtime.onMessage.addListener(function(msg, _, sendResponse) {
         console.log('onMessage', msg);
         if (msg.from == "background") {
 			ajaxResponse = msg.msg;
-            displayItemArrayFromAjaxResponse(ajaxResponse);
+			displayStripe(ajaxResponse);
         }if (msg.from == "popup") {
             sendResponse({domHtml: document.documentElement.innerHTML, "from":"content", ajaxResponse:ajaxResponse});
         }
     });
 }
 
-
+function displayStripe(ajaxResponse){
+if(ajaxResponse && ajaxResponse.statusBool){
+var json = JSON.parse(ajaxResponse.responseContent);
+if(json.NumberOfOffers > 0){
+createStripe();
+displayItemArrayFromAjaxResponse(ajaxResponse);
+}
+			
+			}
+}
 
 function sendMessageToBackground(){
 	var title = document.title;
