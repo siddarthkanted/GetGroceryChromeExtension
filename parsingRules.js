@@ -40,6 +40,53 @@ var parsingRules = [{
 	},
 	
 	{
+		urlRegexContains: ".*zopnow.*p.php",
+		titleContainsArray: [""],
+		//h1 itemprop="name"
+		productName: {
+			"htmlId": "h1[itemprop='name']",
+			"objectKey": "innerText"
+		},
+		//<span itemprop="name">Himalaya</span>
+		productBrandName: {
+			"htmlId": "span[itemprop='name']",
+			"objectKey": "innerText"
+		},
+		//<span class="js-mrp">50.00</span>
+		productMrpPrice: {
+			"htmlId": "span[class='js-mrp']",
+			"objectKey": "innerText"
+		},
+		//<h2 class="finalPrice">₹ 169.50</h2>
+		productOfferPrice: {
+			"htmlId": "h2[class='finalPrice']",
+			"objectKey": "innerText"
+		},
+		productDealPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		//<img class="js-item-image" itemprop="image" src="https://p2.zopnow.com/images/products/320/terzo-window-wiper-86-gm-3381-v-1-pc.png" alt="Terzo Window Wiper 86 Gm 3381 1 pc">
+		productImage: {
+			"htmlId": "img[itemprop='image']",
+			"objectKey": "src"
+		},
+		//<div class="itemLeft jsProduct" data-status="ENABLED" data-display="detail" data-item-id="12521" 
+		//$(domHtml).find("div[class='itemLeft jsProduct']")[0]['attributes']["data-item-id"]['nodeValue']
+		//<meta itemprop="productId" content="10004935">
+		productDbId: {
+			"htmlId": "meta[itemprop='productId']",
+			"objectKey": "content"
+		},
+		productUrlId: {
+			"htmlId": "",
+			"objectKey": "",
+			"urlReplace": "https://www.zopnow.com/"
+		},
+		PartnerName: "ZopNow"
+	},
+	
+	{
 		urlRegexContains: ".*snapdeal.*/product/.*/[0-9]*.*",
 		titleContainsArray: ["Snapdeal"],
 		productName: {
@@ -122,6 +169,10 @@ return getElementByXpath(domHtml, elementObject);
 if(elementObject.urlParameter){
 return getQueryString(elementObject.urlParameter, url);
 }
+if(elementObject.urlReplace){
+var href = url ? url : window.location.href;
+return href.replace(elementObject.urlReplace, "");
+}
 return null;
 }
 
@@ -193,15 +244,28 @@ function getValueByXpath(domHtml, htmlId, htmlAttribute) {
 	return null;
 	var element = $(domHtml).find(htmlId);
 	if (element[0] != null) {
-		var elementValue = element[0][htmlAttribute];
+		var elementValue = getAttributeByXpath(element, htmlAttribute);
 		if (elementValue) {
 			elementValue = elementValue.trim();
 			elementValue = elementValue.replace(/(\r\n|\n|\r)/gm, "");
 			elementValue = elementValue.replace(/(Rs|Rs.|₹)/gm, "");
+			elementValue = elementValue.trim();
 			return elementValue;
 		}
 	}
 	return null;
+}
+
+function getAttributeByXpath(elementArray, htmlAttribute){
+	if(htmlAttribute instanceof Array){
+		var elementObject = elementArray[0];
+		for(var i=0;i<htmlAttribute.length;i++){
+		elementObject=elementObject[htmlAttribute[i]];
+		}
+		return elementObject;
+	}else{
+		return elementArray[0][htmlAttribute];
+	}
 }
 
 function getElementByXpath(domHtml, elementObject) {
