@@ -40,6 +40,98 @@ var parsingRules = [{
 	},
 	
 	{
+		//http://www.bigbasket.com/pd/267054/dettol-bathing-soap-original-75-gm/
+		urlRegexContains: ".*bigbasket.*/pd/.*",
+		titleContainsArray: [""],
+		//<h1> Dettol Bathing Soap - Original, 75 gm ( Pack of 3 ) </h1>
+		productName: {
+			"htmlId": "h1",
+			"objectKey": "innerText"
+		},
+		//<div class="uiv2-brand-name"><a href="/pb/dettol/"> DETTOL </a></div>
+		productBrandName: {
+			"htmlId": "div[class='uiv2-brand-name']",
+			"objectKey": "innerText"
+		},
+		//<span id="uiv2-mrp"><hr>MRP: Rs. 79.00</span>
+		productMrpPrice: {
+			"htmlId": "span[id='uiv2-mrp']",
+			"objectKey": "innerText"
+		},
+		//<div class="uiv2-price" itemprop="price"> Rs. 75.05</div>
+		productOfferPrice: {
+			"htmlId": "div[class='uiv2-price']",
+			"objectKey": "innerText"
+		},
+		productDealPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		//<img itemprop="image"
+		productImage: {
+			"htmlId": "img[itemprop='image']",
+			"objectKey": "src"
+		},
+		//<input type="hidden" id="id-product-id" value="267054">
+		productDbId: {
+			"htmlId": "input[id='id-product-id']",
+			"objectKey": "value"
+		},
+		productUrlId: {
+			"htmlId": "input[id='id-product-id']",
+			"objectKey": "value",
+		},
+		PartnerName: "BigBasket"
+	},
+	
+		{
+		urlRegexContains: ".*mymorestore.*p.php",
+		titleContainsArray: [""],
+		//h1 itemprop="name"
+		productName: {
+			"htmlId": "h1[itemprop='name']",
+			"objectKey": "innerText"
+		},
+		//<span itemprop="name">Himalaya</span>
+		productBrandName: {
+			"htmlId": "span[itemprop='name']",
+			"objectKey": "innerText"
+		},
+		//<span class="js-mrp">50.00</span>
+		productMrpPrice: {
+			"htmlId": "span[class='js-mrp']",
+			"objectKey": "innerText"
+		},
+		//<h2 class="finalPrice">? 169.50</h2>
+		productOfferPrice: {
+			"htmlId": "h2[class='finalPrice']",
+			"objectKey": "innerText"
+		},
+		productDealPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		//<img class="js-item-image" itemprop="image" src="https://p2.mymorestore.com/images/products/320/terzo-window-wiper-86-gm-3381-v-1-pc.png" alt="Terzo Window Wiper 86 Gm 3381 1 pc">
+		productImage: {
+			"htmlId": "img[itemprop='image']",
+			"objectKey": "src"
+		},
+		//<div class="itemLeft jsProduct" data-status="ENABLED" data-display="detail" data-item-id="12521" 
+		//$(domHtml).find("div[class='itemLeft jsProduct']")[0]['attributes']["data-item-id"]['nodeValue']
+		//<meta itemprop="productId" content="10004935">
+		productDbId: {
+			"htmlId": "meta[itemprop='productId']",
+			"objectKey": "content"
+		},
+		productUrlId: {
+			"htmlId": "",
+			"objectKey": "",
+			"urlReplace": "https://www.mymorestore.com/"
+		},
+		PartnerName: "MyMoreStore"
+	},
+	
+	{
 		urlRegexContains: ".*zopnow.*p.php",
 		titleContainsArray: [""],
 		//h1 itemprop="name"
@@ -93,9 +185,11 @@ var parsingRules = [{
 			"htmlId": "h1[class='pdp-e-i-head']",
 			"objectKey": "innerText"
 		},
+		//<li class="col-xs-8 dtls-li">
 		productBrandName: {
-			"htmlId": "",
-			"objectKey": "innerText"
+			"htmlId": "li[class='col-xs-8 dtls-li']",
+			"objectKey": "innerText",
+			"containString": "Brand : "
 		},
 		productMrpPrice: {
 			"htmlId": "div[class='pdpCutPrice'],span[class='payBlkBig']",
@@ -140,7 +234,13 @@ function matchOtherRules(domHtml, otherRules) {
 
 function getBrandName(domHtml, elementObject, productName){
 	var productBrandName = getElementByXpath(domHtml, elementObject);
-	if(productBrandName) return productBrandName;
+	if(productBrandName) {
+		if(elementObject.containString){
+			return productBrandName.replace(elementObject.containString, "");
+		}else{
+		return productBrandName;
+		}
+	}
 	for (var i = 0; i < importantBrandNames.length; i++) {
 		var brandName = importantBrandNames[i];
 		brandName = brandName.toLowerCase();
@@ -200,7 +300,8 @@ function parseSite(url, title, domHtml) {
 			var productOfferPrice = getElementByXpath(domHtml, parsingRules[i].productOfferPrice);
 			var productDealPrice = getElementByXpath(domHtml, parsingRules[i].productDealPrice);
 			var productImage = getElementByXpath(domHtml, parsingRules[i].productImage);
-
+			productImage = productImage.replace("chrome-extension", "http");
+			
 			var productMetadata = {
 				ProductName: productName,
 				ProductDbId: productDbId,
@@ -248,7 +349,7 @@ function getValueByXpath(domHtml, htmlId, htmlAttribute) {
 		if (elementValue) {
 			elementValue = elementValue.trim();
 			elementValue = elementValue.replace(/(\r\n|\n|\r)/gm, "");
-			elementValue = elementValue.replace(/(Rs|Rs.|₹)/gm, "");
+			elementValue = elementValue.replace(/(MRP:|MRP|Rs[.]|Rs|₹)/gm, "");
 			elementValue = elementValue.trim();
 			return elementValue;
 		}
