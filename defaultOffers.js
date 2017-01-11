@@ -2,7 +2,7 @@ var offers = [
 
 {
 	partnerName:"Amazon",
-	partnerImage:"https://affilateimage.file.core.windows.net/image/amzLogo_70x70.png?sv=2015-04-05&ss=f&srt=sco&sp=rc&se=2017-08-24T23:20:07Z&st=2016-08-27T15:20:07Z&spr=https,http&sig=vWUGrL9fdCgyigkbgCCtK9aNIYEMAtamGqnSiP3Kn8U%3D",
+	partnerImage:"https://assets.mysmartprice.com/q_auto/logos/partners/amazon_store.png",
 	partnerDescription:"Awesome Money Saving Deals",
 	partnerClickLink:"http://www.amazon.in/gp/goldbox/all-deals/?ie=UTF8&camp=3626&creative=24790&linkCode=ur2&tag=httpssiddarth-21",
 	partnerPrice:""
@@ -10,7 +10,7 @@ var offers = [
 
 {
 	partnerName:"Flipkart",
-	partnerImage:"https://affilateimage.file.core.windows.net/image/flipkartLogo_70x70.jpg?sv=2015-04-05&ss=f&srt=sco&sp=rc&se=2017-08-24T23:20:07Z&st=2016-08-27T15:20:07Z&spr=https,http&sig=vWUGrL9fdCgyigkbgCCtK9aNIYEMAtamGqnSiP3Kn8U%3D",
+	partnerImage:"https://assets.mysmartprice.com/q_auto/logos/partners/flipkart_store.png",
 	partnerDescription:"Fabulous Money Saving Deals",
 	partnerClickLink:"http://dl.flipkart.com/dl/offers?affid=siddarthk",
 	partnerPrice:""
@@ -18,7 +18,7 @@ var offers = [
 
 {
 	partnerName:"Snapdeal",
-	partnerImage:"https://affilateimage.file.core.windows.net/image/snapdealLogo_70x70.png?sv=2015-04-05&ss=f&srt=sco&sp=rc&se=2017-08-24T23:20:07Z&st=2016-08-27T15:20:07Z&spr=https,http&sig=vWUGrL9fdCgyigkbgCCtK9aNIYEMAtamGqnSiP3Kn8U%3D",
+	partnerImage:"https://assets.mysmartprice.com/q_auto/logos/partners/snapdeal_store.png",
 	partnerDescription:"Stupendous Money Saving Deals",
 	partnerClickLink:"http://www.snapdeal.com/offers/deal-of-the-day?utm_source=aff_prog&utm_campaign=afts&offer_id=17&aff_id=77922",
 	partnerPrice:""

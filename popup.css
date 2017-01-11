@@ -81,6 +81,14 @@
     text-decoration: none;
     display: inline-block;
 }
+.highlightBlue{
+    background-color: #4080ff;
+    color: white;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
 .highlightWhiteSmall{
     background-color: white;
     padding: 7px 25px;
