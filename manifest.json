@@ -25,7 +25,7 @@
 	"content_scripts": [
         {
         "matches": [
-"*://*.zopnow.com/*","*://*.mymorestore.com/*","*://*.hypercitydelivery.com/*","*://*.bigbasket.com/*","*://*.amazon.in/*","*://*.flipkart.com/*","*://*.snapdeal.com/*","*://*.aaramshop.com/*"
+"*://*.zopnow.com/*","*://*.mymorestore.com/*","*://*.hypercitydelivery.com/*","*://*.bigbasket.com/*","*://*.amazon.in/*","*://*.flipkart.com/*","*://*.snapdeal.com/*","*://*.aaramshop.com/*","*://*.heritagefreshonline.com/*","*://*.sparindia.com/*","*://*.zip.in/*","*://*.spencers.in/*"
             ],
         "js": ["contentScript.js", "jquery-1.10.2.js", "displayItems.js","defaultOffers.js", "ajaxResponse.js"],
 		"css": [ "popup.css" ],

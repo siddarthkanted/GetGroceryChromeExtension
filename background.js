@@ -21,13 +21,7 @@ if (jQuery) {
 
 function GetNumberOfOffers(urlString, tabId, sendMessageToContentFunction, productMetadata) {
 	var ajaxArgumentsArray;
-	if (productMetadata) {
-		ajaxArgumentsArray = [];
-	} else {
-		var ajaxArgument = new AjaxArgument("currentChromeUrl", urlString);
-		ajaxArgumentsArray = [ajaxArgument];
-	}
-
+	
 	var successArguments = {
 		tabId: tabId,
 		tabUrl: urlString,
@@ -36,9 +30,24 @@ function GetNumberOfOffers(urlString, tabId, sendMessageToContentFunction, produ
 
 	var ajaxResponse;
 	if (productMetadata) {
+		if(productMetadata.ProductDbId){
+		
+		ajaxArgumentsArray = [];
 		var json = JSON.stringify(productMetadata),
 		ajaxResponse = makeCorsPostRequest('http://affilatewebapplication20161111122930.azurewebsites.net/PriceCompare/StoreAndGetSimilarProducts', ajaxArgumentsArray, onGetNumberOfOffersSuccess, successArguments, "POST", "application/json; charset=utf-8", json);
+		
+		}else{
+		
+		var ajaxArgument = new AjaxArgument("productName", productMetadata.ProductName);
+		ajaxArgumentsArray = [ajaxArgument];
+		
+				ajaxResponse = makeCorsPostRequest('http://affilatewebapplication20161111122930.azurewebsites.net/PriceCompare/GetSimilarProductsFromName', ajaxArgumentsArray, onGetNumberOfOffersSuccess, successArguments, "GET", null, null);
+		}
 	} else {
+	
+	var ajaxArgument = new AjaxArgument("currentChromeUrl", urlString);
+		ajaxArgumentsArray = [ajaxArgument];
+		
 		ajaxResponse = makeCorsPostRequest('http://affilatewebapplication20161111122930.azurewebsites.net/PriceCompare/GetSimilarProductsHtml', ajaxArgumentsArray, onGetNumberOfOffersSuccess, successArguments, "GET", null, null);
 	}
 	return ajaxResponse;
