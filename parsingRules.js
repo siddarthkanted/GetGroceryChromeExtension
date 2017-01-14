@@ -175,6 +175,55 @@ var parsingRules = [{
 		PartnerName: "ZopNow"
 	},
 	
+	{
+	//https://www.sparindia.com/en/Beauty-%26Personal-Care/Hair-Care/Hair-Oils//p/114516961
+		urlRegexContains: ".*reliancefreshdirect.*",
+		titleContainsArray: [""],
+		//<span id="itemName">Red Label Tea 250 gm</span>
+		productName: {
+			"htmlId": "span[id='itemName']",
+			"objectKey": "innerText"
+		},
+		//<span itemprop="name">Himalaya</span>
+		productBrandName: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		//<span class="js-mrp">50.00</span>
+		productMrpPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		//<h2 class="finalPrice">₹ 169.50</h2>
+		productOfferPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		productDealPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		//<img class="js-item-image" itemprop="image" src="https://p2.zopnow.com/images/products/320/terzo-window-wiper-86-gm-3381-v-1-pc.png" alt="Terzo Window Wiper 86 Gm 3381 1 pc">
+		productImage: {
+			"htmlId": "",
+			"objectKey": "src"
+		},
+		//<div class="itemLeft jsProduct" data-status="ENABLED" data-display="detail" data-item-id="12521" 
+		//$(domHtml).find("div[class='itemLeft jsProduct']")[0]['attributes']["data-item-id"]['nodeValue']
+		//<meta itemprop="productId" content="10004935">
+		productDbId: {
+			"htmlId": "",
+			"objectKey": "content"
+		},
+		productUrlId: {
+			"htmlId": "",
+			"objectKey": "",
+			"urlReplace": "https://www.zopnow.com/"
+		},
+		PartnerName: "Reliance Fresh Direct"
+	},
+	
+	
 		{
 	//https://www.sparindia.com/en/Beauty-%26Personal-Care/Hair-Care/Hair-Oils//p/114516961
 		urlRegexContains: ".*sparindia.*/p/.*",
