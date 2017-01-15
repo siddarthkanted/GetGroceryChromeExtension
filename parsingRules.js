@@ -317,7 +317,7 @@ var parsingRules = [{
 			"objectKey": "",
 			"urlReplace": "https://www.zopnow.com/"
 		},
-		PartnerName: "Spar"
+		PartnerName: "ZipIn"
 	},
 	
 	{
@@ -423,11 +423,10 @@ var parsingRules = [{
 			"htmlId": "h1[class='pdp-e-i-head']",
 			"objectKey": "innerText"
 		},
-		//<li class="col-xs-8 dtls-li">
+		//<input type="hidden" value="Dettol" id="brandName">
 		productBrandName: {
-			"htmlId": "li[class='col-xs-8 dtls-li']",
-			"objectKey": "innerText",
-			"containString": "Brand : "
+			"htmlId": "input[id='brandName']",
+			"objectKey": "value"
 		},
 		productMrpPrice: {
 			"htmlId": "div[class='pdpCutPrice'],span[class='payBlkBig']",
@@ -570,7 +569,7 @@ function getValueByXpath(domHtml, htmlId, htmlAttribute) {
 		if (elementValue) {
 			elementValue = elementValue.trim();
 			elementValue = elementValue.replace(/(\r\n|\n|\r)/gm, "");
-			elementValue = elementValue.replace(/(MRP:|MRP|Rs[.]|Rs|₹)/gm, "");
+			elementValue = elementValue.replace(/(MRP:|,|MRP|Rs[.]|Rs|₹)/gm, "");
 			elementValue = elementValue.trim();
 			return elementValue;
 		}
