@@ -1,5 +1,5 @@
 var parsingRules = [{
-		urlRegexContains: ".*amazon.*dp.*",
+		urlRegexContains: ".*amazon.*dp.*|.*amazon.*product.*",
 		titleContainsArray: ["Amazon.in"],
 		productName: {
 			"htmlId": "#productTitle",
@@ -33,9 +33,17 @@ var parsingRules = [{
 			"htmlId": "#ASIN",
 			"objectKey": "value"
 		},
+		productRatingString: {
+			"htmlId": "div[id='avgRating']",
+			"objectKey": "innerText"
+		},
+		productReviewString: {
+			"htmlId": "span[id='acrCustomerReviewText']",
+			"objectKey": "innerText"
+		},
 		PartnerName: "Amazon"
 	},
-	
+		
 	{
 		//http://www.bigbasket.com/pd/267054/dettol-bathing-soap-original-75-gm/
 		urlRegexContains: ".*bigbasket.*/pd/.*",
@@ -454,6 +462,26 @@ var parsingRules = [{
 			"objectKey": "value",
 			"urlParameter": ""
 		},
+		//<span class="hidden" itemprop="ratingValue">3.4</span>
+		productRatingString: {
+			"htmlId": "span[itemprop='ratingValue']",
+			"objectKey": "innerText"
+		},
+		//<span class="total-rating showRatingTooltip">78 Ratings</span>
+		productTotalRatingString: {
+			"htmlId": "span[class='total-rating showRatingTooltip']",
+			"objectKey": "innerText"
+		},
+		//<span class="numbr-review">9 Reviews</a></span>
+		productReviewString: {
+			"htmlId": "span[class='numbr-review']",
+			"objectKey": "innerText"
+		},
+		//<input id="offersList" type="hidden" value=";:;Get 5% instant discount + 10X rewards using Snapdeal HDFC Bank Credit Card">
+			productOfferString: {
+			"htmlId": "input[id='offersList']",
+			"objectKey": "value"
+		},
 		PartnerName: "Snapdeal"
 	}
 ];
@@ -521,6 +549,21 @@ function parseSite(url, title, domHtml) {
 			productImage = productImage.replace("chrome-extension", "http");
 			}
 			
+			var RatingString = getElementByXpath(domHtml, parsingRules[i].productRatingString);
+			var TotalRatingString = getElementByXpath(domHtml, parsingRules[i].productTotalRatingString);
+			var ReviewString = getElementByXpath(domHtml, parsingRules[i].productReviewString);
+			var OfferString = getElementByXpath(domHtml, parsingRules[i].productOfferString);
+			OfferString = OfferString.replace(";:;", "").replace(" + ", "\n");
+			var ReviewRatingString = "";
+			
+			if(RatingString)
+			  ReviewRatingString = RatingString;
+			 
+			if(TotalRatingString)
+			ReviewRatingString +=" & "+TotalRatingString;
+			  
+			if(ReviewString)  
+			ReviewRatingString +=" & "+ReviewString;
 			
 			var productMetadata = {
 				ProductName: productName,
@@ -533,6 +576,8 @@ function parseSite(url, title, domHtml) {
 				ProductBrandName: productBrandName,
 				PartnerName: parsingRules[i].PartnerName,
 				Link: url,
+				ReviewRatingString:ReviewRatingString,
+				OfferString:OfferString,
 			}
 
 			return productMetadata;
