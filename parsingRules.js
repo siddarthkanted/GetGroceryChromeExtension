@@ -41,6 +41,37 @@ var parsingRules = [{
 			"htmlId": "span[id='acrCustomerReviewText']",
 			"objectKey": "innerText"
 		},
+		//<div class="histoRowfive" title="52% of reviews have 5 stars">
+		productFiveStarString: {
+			"htmlId": "div[class='histoRowfive']",
+			"objectKey": "title"
+		},
+		//<div class="histoRowfour" title="31% of reviews have 4 stars">
+		productFourStarString: {
+			"htmlId": "div[class='histoRowfour']",
+			"objectKey": "title"
+		},
+		//<div class="histoRowthree" title="7% of reviews have 3 stars">
+		productThreeStarString: {
+			"htmlId": "div[class='histoRowthree']",
+			"objectKey": "title"
+		},
+		//<div class="histoRowtwo" title="4% of reviews have 2 stars">
+		productTwoStarString: {
+			"htmlId": "div[class='histoRowtwo']",
+			"objectKey": "title"
+		},
+		//<div class="histoRowone" title="6% of reviews have 1 stars">
+		productOneStarString: {
+			"htmlId": "div[class='histoRowone']",
+			"objectKey": "title"
+		},
+		//<a id="askATFLink" class="a-link-normal askATFLink" href="#Ask">
+		productQuestionAsked: {
+			"htmlId": "a[id='askATFLink']",
+			"objectKey": "innerText"
+		},
+		
 		PartnerName: "Amazon"
 	},
 		
@@ -465,7 +496,8 @@ var parsingRules = [{
 		//<span class="hidden" itemprop="ratingValue">3.4</span>
 		productRatingString: {
 			"htmlId": "span[itemprop='ratingValue']",
-			"objectKey": "innerText"
+			"objectKey": "innerText",
+			"extraString": " average rating"
 		},
 		//<span class="total-rating showRatingTooltip">78 Ratings</span>
 		productTotalRatingString: {
@@ -482,6 +514,14 @@ var parsingRules = [{
 			"htmlId": "input[id='offersList']",
 			"objectKey": "value"
 		},
+		//<div class="spec-body p-keyfeatures">
+		productDescription: {
+			"htmlId": "li[class='col-xs-8 dtls-li']",
+			"objectKey": "innerText"
+		},
+		//<span class="recom">91<span class="percentText">%</span></span>
+		//<div class="recom-subtext">Based on 600 Recommendations.</div>
+		//<span class="numbr-selfie">
 		PartnerName: "Snapdeal"
 	}
 ];
@@ -530,6 +570,17 @@ return href.replace(elementObject.urlReplace, "");
 return null;
 }
 
+function reviewStringCreator(domHtml, attributeData, reviewString, concatenator){
+			if(!attributeData)
+			return reviewString;
+			
+			var dataString = getElementByXpath(domHtml, attributeData);
+			var extraString = attributeData.extraString?attributeData.extraString:"";
+			if(dataString)
+			reviewString +=dataString+extraString+concatenator;
+			return reviewString;
+}
+
 function parseSite(url, title, domHtml) {
 	for (var i = 0; i < parsingRules.length; i++) {
 		if (urlMatch(url, parsingRules[i].urlRegexContains) && titleMatch(title, parsingRules[i].titleContainsArray) && matchOtherRules(domHtml, parsingRules[i].otherRules)) {
@@ -549,21 +600,28 @@ function parseSite(url, title, domHtml) {
 			productImage = productImage.replace("chrome-extension", "http");
 			}
 			
-			var RatingString = getElementByXpath(domHtml, parsingRules[i].productRatingString);
-			var TotalRatingString = getElementByXpath(domHtml, parsingRules[i].productTotalRatingString);
-			var ReviewString = getElementByXpath(domHtml, parsingRules[i].productReviewString);
-			var OfferString = getElementByXpath(domHtml, parsingRules[i].productOfferString);
-			OfferString = OfferString.replace(";:;", "").replace(" + ", "\n");
-			var ReviewRatingString = "";
+			var productDescription = getElementsByXpath(domHtml, parsingRules[i].productDescription);
+			productDescription = description(productDescription);
 			
-			if(RatingString)
-			  ReviewRatingString = RatingString;
-			 
-			if(TotalRatingString)
-			ReviewRatingString +=" & "+TotalRatingString;
-			  
-			if(ReviewString)  
-			ReviewRatingString +=" & "+ReviewString;
+			
+			//reviews
+			var ReviewRatingString = "";
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productRatingString, ReviewRatingString, "\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productTotalRatingString, ReviewRatingString,"\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productReviewString, ReviewRatingString,"\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productFiveStarString, ReviewRatingString,"\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productFourStarString, ReviewRatingString,"\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productThreeStarString, ReviewRatingString,"\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productTwoStarString, ReviewRatingString,"\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productOneStarString, ReviewRatingString,"\n");
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productQuestionAsked, ReviewRatingString,"\n");			
+			
+						
+			
+			var OfferString = getElementByXpath(domHtml, parsingRules[i].productOfferString);
+			if(OfferString)
+				OfferString = OfferString.replace(";:;", "").replace(" + ", "\n");
+			
 			
 			var productMetadata = {
 				ProductName: productName,
@@ -576,8 +634,9 @@ function parseSite(url, title, domHtml) {
 				ProductBrandName: productBrandName,
 				PartnerName: parsingRules[i].PartnerName,
 				Link: url,
-				ReviewRatingString:ReviewRatingString,
+				ReviewRatingString:ReviewRatingString.trim(),
 				OfferString:OfferString,
+				ProductDescription:productDescription,
 			}
 
 			return productMetadata;
@@ -585,6 +644,16 @@ function parseSite(url, title, domHtml) {
 
 	}
 	return null;
+}
+
+function description(description){
+if(!description)
+	return null;
+ var descriptionString = "";
+ for (var i = 0; i < description.length; i++) {
+     descriptionString += description[i].trim() + "\n";
+ }
+ return descriptionString.trim();
 }
 
 function titleMatch(title, titleContainsArray) {
@@ -620,6 +689,20 @@ function getValueByXpath(domHtml, htmlId, htmlAttribute) {
 		}
 	}
 	return null;
+}
+
+function getElementsByXpath(domHtml, elementObject){
+if(!elementObject)
+	return null;
+	var elements = $(domHtml).find(elementObject.htmlId);
+	var elementAttributeArray = [];
+	if (elements != null) {
+		for(var i=0;i<elements.length;i++){
+		element=elements[i];
+		elementAttributeArray.push(element[elementObject.objectKey]);
+		}
+	}
+	return elementAttributeArray;
 }
 
 function getAttributeByXpath(elementArray, htmlAttribute){
