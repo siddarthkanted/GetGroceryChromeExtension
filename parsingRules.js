@@ -74,6 +74,67 @@ var parsingRules = [{
 		
 		PartnerName: "Amazon"
 	},
+	
+		{
+		//<input type="hidden" autocomplete="off" name="href" value="http://www.infibeam.com/SDP.action?catalogId=P-moac-62472505403-cat">
+		urlRegexContains: ".*infibeam.*P-.*-[0-9]*-cat-z.html",
+		titleContainsArray: [""],
+		//<h1 class="product-title-small " itemprop="name">Portronics Sublime III Bluetooth Speaker (with microSD/FM/Aux/Alarm) - Black</h1>
+		productName: {
+			"htmlId": "h1[itemprop='name']",
+			"objectKey": "innerText"
+		},
+		//<meta itemprop="brand" content="Philips">
+		productBrandName: {
+			"htmlId": "meta[itemprop='brand']",
+			"objectKey": "content"
+		},
+		//<span class="price linethrough">1,999</span>
+		productMrpPrice: {
+			"htmlId": "span[class='price linethrough']",
+			"objectKey": "innerText"
+		},
+		//<span class="currentPrice"><span style="font-family: rupee">R </span>1303</span>
+		productOfferPrice: {
+			"htmlId": "span[class='currentPrice']",
+			"objectKey": "innerText"
+		},
+		productDealPrice: {
+			"htmlId": "",
+			"objectKey": "innerText"
+		},
+		//<img itemprop="image"
+		productImage: {
+			"htmlId": "img[class='zoomImg']",
+			"objectKey": "src"
+		},
+		//<div class="row h_container pm-select active" data-priority="1" data-listing-id="P-poel-71226981994">
+		productDbId: {
+			"htmlId": "",
+			"objectKey": "value",
+			"urlPosition": 3
+		},
+		productUrlId: {
+			"htmlId": "",
+			"objectKey": "value",
+			"urlPosition": 3
+		},
+		//<ul class="key-features-ul clearfix" id="double">
+		productDescription: {
+			"htmlId": "ul[class='key-features-ul']",
+			"objectKey": "innerText"
+		},
+		//<span class="rating-star">
+		productTotalRatingString: {
+			"htmlId": "span[class='rating-star']",
+			"objectKey": "innerText",
+			"extraString": " total"
+		},
+		
+		
+		PartnerName: "Infibeam"
+	},
+	
 		
 	{
 		//http://www.bigbasket.com/pd/267054/dettol-bathing-soap-original-75-gm/
@@ -162,7 +223,7 @@ var parsingRules = [{
 		productUrlId: {
 			"htmlId": "",
 			"objectKey": "",
-			"urlReplace": "https://www.mymorestore.com/"
+			"urlPosition": 1
 		},
 		PartnerName: "MyMoreStore"
 	},
@@ -209,7 +270,7 @@ var parsingRules = [{
 		productUrlId: {
 			"htmlId": "",
 			"objectKey": "",
-			"urlReplace": "https://www.zopnow.com/"
+			"urlPosition": 1
 		},
 		PartnerName: "ZopNow"
 	},
@@ -475,6 +536,10 @@ var parsingRules = [{
 			"htmlId": "span[itemprop='price']",
 			"objectKey": "innerText"
 		},
+		productEmiPrice: {
+			"htmlId": "span[class='emi-price']",
+			"objectKey": "innerText"
+		},
 		productDealPrice: {
 			"htmlId": "",
 			"objectKey": "innerText"
@@ -519,9 +584,36 @@ var parsingRules = [{
 			"htmlId": "li[class='col-xs-8 dtls-li']",
 			"objectKey": "innerText"
 		},
-		//<span class="recom">91<span class="percentText">%</span></span>
+		//<span id="recommend-section" class="recommend-rating padL10"> 
+		productRecommendString: {
+			"htmlId": "span[id='recommend-section']",
+			"objectKey": "innerText",
+			"extraString": " recommend this product"
+		},
 		//<div class="recom-subtext">Based on 600 Recommendations.</div>
+		productRecommendTotalString: {
+			"htmlId": "div[class='recom-subtext']",
+			"objectKey": "innerText",
+			"extraString": " average rating"
+		},
 		//<span class="numbr-selfie">
+		productNumberSelfieString: {
+			"htmlId": "span[class='numbr-selfie']",
+			"objectKey": "innerText",
+		},
+		//  <input type="hidden" value="42" id="qnaNoOfQuestions" name="qnaNoOfQuestions" class="sectionCount">
+		productQuestionAsked: {
+			"htmlId": "input[id='qnaNoOfQuestions']",
+			"objectKey": "value",
+			"extraString": " Questions asked"
+		},
+		//<input type="hidden" value="34" id="qnaNoOfAnswers" name="qnaNoOfAnswers">
+		productQuestionAnswered: {
+			"htmlId": "input[id='qnaNoOfAnswers']",
+			"objectKey": "value",
+			"extraString": " Questions answered"
+		},
+		
 		PartnerName: "Snapdeal"
 	}
 ];
@@ -563,9 +655,11 @@ return getElementByXpath(domHtml, elementObject);
 if(elementObject.urlParameter){
 return getQueryString(elementObject.urlParameter, url);
 }
-if(elementObject.urlReplace){
+if(elementObject.urlPosition != null){
 var href = url ? url : window.location.href;
-return href.replace(elementObject.urlReplace, "");
+var parser = document.createElement('a');
+parser.href = href;
+return parser.pathname.split('/')[elementObject.urlPosition];
 }
 return null;
 }
@@ -614,11 +708,15 @@ function parseSite(url, title, domHtml) {
 			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productThreeStarString, ReviewRatingString,"\n");
 			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productTwoStarString, ReviewRatingString,"\n");
 			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productOneStarString, ReviewRatingString,"\n");
-			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productQuestionAsked, ReviewRatingString,"\n");			
-			
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productQuestionAsked, ReviewRatingString,"\n");	
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productQuestionAnswered, ReviewRatingString,"\n");	
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productRecommendString, ReviewRatingString,"\n");				
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productRecommendTotalString, ReviewRatingString,"\n");	
+			ReviewRatingString = reviewStringCreator(domHtml, parsingRules[i].productNumberSelfieString, ReviewRatingString,"\n");				
 						
-			
-			var OfferString = getElementByXpath(domHtml, parsingRules[i].productOfferString);
+			var OfferString = "";
+			OfferString = reviewStringCreator(domHtml, parsingRules[i].productOfferString, OfferString, "\n");
+			OfferString = reviewStringCreator(domHtml, parsingRules[i].productEmiPrice, OfferString, "\n");
 			if(OfferString)
 				OfferString = OfferString.replace(";:;", "").replace(" + ", "\n");
 			
@@ -635,7 +733,7 @@ function parseSite(url, title, domHtml) {
 				PartnerName: parsingRules[i].PartnerName,
 				Link: url,
 				ReviewRatingString:ReviewRatingString.trim(),
-				OfferString:OfferString,
+				OfferString:OfferString.trim(),
 				ProductDescription:productDescription,
 			}
 
@@ -683,7 +781,7 @@ function getValueByXpath(domHtml, htmlId, htmlAttribute) {
 		if (elementValue) {
 			elementValue = elementValue.trim();
 			elementValue = elementValue.replace(/(\r\n|\n|\r)/gm, "");
-			elementValue = elementValue.replace(/(MRP:|,|MRP|Rs[.]|Rs|₹)/gm, "");
+			elementValue = elementValue.replace(/(MRP:|,|MRP|Rs[.]|Rs|₹|R)/gm, "");
 			elementValue = elementValue.trim();
 			return elementValue;
 		}
