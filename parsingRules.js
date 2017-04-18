@@ -121,16 +121,33 @@ var parsingRules = [{
 		},
 		//<ul class="key-features-ul clearfix" id="double">
 		productDescription: {
-			"htmlId": "ul[class='key-features-ul']",
+			"htmlId": "div[class='key-features']",
 			"objectKey": "innerText"
 		},
 		//<span class="rating-star">
 		productTotalRatingString: {
 			"htmlId": "span[class='rating-star']",
-			"objectKey": "innerText",
+			"objectKey": "alt",
 			"extraString": " total"
 		},
+		//<a class="review-count right-margin" href="#reviews-detail">7<span class="review-gap">Buyer Reviews</span></a>
+		productReviewString: {
+			"htmlId": "a[href='#reviews-detail']",
+			"objectKey": "innerText",
+			"isReplaceRequired":false
+		},
+		//<meta itemprop="ratingCount" content="8">
+			productRatingString: {
+			"htmlId": "meta[itemprop='ratingCount']",
+			"objectKey": "content",
+			"extraString": " Ratings"
+		},
 		
+		//<li class="offer ui-promotion">
+			productOfferString: {
+			"htmlId": "li[class='offer ui-promotion']",
+			"objectKey": "innerText"
+		},
 		
 		PartnerName: "Infibeam"
 	},
@@ -772,7 +789,7 @@ function urlMatch(urlString, urlRegex) {
 	}
 }
 
-function getValueByXpath(domHtml, htmlId, htmlAttribute) {
+function getValueByXpath(domHtml, htmlId, htmlAttribute, isReplaceRequired = true) {
 	if(!domHtml || !htmlId || !htmlAttribute)
 	return null;
 	var element = $(domHtml).find(htmlId);
@@ -781,7 +798,9 @@ function getValueByXpath(domHtml, htmlId, htmlAttribute) {
 		if (elementValue) {
 			elementValue = elementValue.trim();
 			elementValue = elementValue.replace(/(\r\n|\n|\r)/gm, "");
-			elementValue = elementValue.replace(/(MRP:|,|MRP|Rs[.]|Rs|₹|R)/gm, "");
+			if(isReplaceRequired){
+						elementValue = elementValue.replace(/(MRP:|,|MRP|Rs[.]|Rs|₹|R)/gm, "");
+			}
 			elementValue = elementValue.trim();
 			return elementValue;
 		}
@@ -818,5 +837,8 @@ function getAttributeByXpath(elementArray, htmlAttribute){
 function getElementByXpath(domHtml, elementObject) {
 	if(!elementObject)
 	return null;
+	if(elementObject.isReplaceRequired != null){
+	return getValueByXpath(domHtml, elementObject.htmlId, elementObject.objectKey, elementObject.isReplaceRequired);
+	}
 	return getValueByXpath(domHtml, elementObject.htmlId, elementObject.objectKey);
 }

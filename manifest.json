@@ -5,7 +5,7 @@
 	
 	"description":"Best Price for on-line purchase in India",
 	
-	"version":"30.0",
+	"version":"31.0",
 
 	"browser_action": {
 		"default_icon":"icon.png",
